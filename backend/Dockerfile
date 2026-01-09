@@ -7,9 +7,9 @@ RUN pip install poetry
 
 WORKDIR /app
 
-COPY pyproject.toml poetry.lock ./
+COPY ./backend/pyproject.toml ./backend/poetry.lock ./
 
-COPY . .
+COPY ./backend .
 
 RUN poetry install -n
 

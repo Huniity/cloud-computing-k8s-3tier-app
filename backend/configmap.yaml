@@ -5,8 +5,8 @@ metadata:
 data:
   DJANGO_SETTINGS_MODULE: learning_hub.settings
   DJANGO_DEBUG: "False"
-  POSTGRES_HOST: postgres
+  POSTGRES_HOST: database
   POSTGRES_PORT: "5432"
   POSTGRES_DB: hub_db
   POSTGRES_USER: postgres
-  ALLOWED_HOSTS: "localhost,127.0.0.1,backend-service"
+  ALLOWED_HOSTS: "localhost,127.0.0.1,project-hub,backend,frontend"

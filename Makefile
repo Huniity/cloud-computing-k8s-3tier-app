@@ -78,7 +78,7 @@ create.env:
 	@echo "DATABASE_URL=postgresql://postgres:qwerty@database:5432/hub_db" >> .env
 	@echo "DJANGO_DEBUG=False" >> .env
 	@echo "SECRET_KEY=django-insecure-_g!xn78w26aj^pw*$$2&^&fl_3wbtspd+3eay%2*3mgb4^u$jg" >> .env
-	@echo "ALLOWED_HOSTS=localhost,127.0.0.1,backend" >> .env
+	@echo "ALLOWED_HOSTS=localhost,127.0.0.1,backend,frontend" >> .env
 	@echo ".env file created successfully."
 
 lazy.jorge:
