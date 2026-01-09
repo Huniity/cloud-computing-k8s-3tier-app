@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Enrollments - Learning Hub</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">Learning Hub</div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="/courses.html" class="nav-link">Courses</a></li>
+                <li style="display: none;" id="mentorMenu">
+                    <a href="/mentor-dashboard.html" class="nav-link">My Courses</a>
+                </li>
+                <li style="display: none;" id="logoutMenu">
+                    <button onclick="logout()" class="nav-link logout-btn">Logout</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="enrollments-section">
+            <h2>My Enrollments</h2>
+            <div id="enrollmentsList" class="courses-grid">
+                <div class="loading">Loading your enrollments...</div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Learning Hub. All rights reserved.</p>
+    </footer>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/auth.js"></script>
+    <script>
+        async function loadEnrollments() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            try {
+                const courses = await apiCall('/courses/my_enrollments/');
+                const enrollmentsList = document.getElementById('enrollmentsList');
+                enrollmentsList.innerHTML = '';
+                
+                if (courses.length === 0) {
+                    enrollmentsList.innerHTML = '<p>You are not enrolled in any courses</p>';
+                    return;
+                }
+                
+                courses.forEach(course => {
+                    const card = document.createElement('div');
+                    card.className = 'course-card';
+                    card.innerHTML = `
+                        <h3>${course.course_title}</h3>
+                        <p class="category">${course.category}</p>
+                        <p class="instructor">by ${course.user_username}</p>
+                        <p class="description">${course.description}</p>
+                        <button class="btn btn-secondary" onclick="unenroll(${course.id})">Unenroll</button>
+                    `;
+                    enrollmentsList.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading enrollments:', error);
+                document.getElementById('enrollmentsList').innerHTML = '<p>Error loading enrollments</p>';
+            }
+        }
+
+        async function unenroll(courseId) {
+            try {
+                await apiCall(`/courses/${courseId}/unenroll/`, 'POST');
+                loadEnrollments();
+            } catch (error) {
+                console.error('Error unenrolling:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadEnrollments();
+        });
+    </script>
+</body>
+</html>

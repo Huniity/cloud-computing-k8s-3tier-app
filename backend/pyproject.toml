@@ -1,0 +1,31 @@
+[project]
+name = "project-hub"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Huniity",email = "adrien.dejonc@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django (>=5.1.7,<6.0.0)",
+    "djangorestframework (>=3.14.0,<4.0.0)",
+    "uvicorn (>=0.34.0,<0.35.0)",
+    "psycopg2-binary (>=2.9.10,<3.0.0)",
+    "typer (>=0.15.2,<0.16.0)",
+    "whitenoise (>=6.9.0,<7.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "learning_hub"}]
+
+
+[tool.poetry.group.dev.dependencies]
+pytest-django = "^4.10.0"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "learning_hub.settings"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

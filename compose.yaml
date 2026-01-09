@@ -1,0 +1,77 @@
+services:
+  # Database Service
+  database:
+    build:
+      dockerfile: Dockerfile
+      context: ./database
+    container_name: course-hub-db
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - course-hub-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Service (Django API)
+  backend:
+    build:
+      dockerfile: Dockerfile
+      context: ./backend
+    container_name: course-hub-backend
+    command: poetry run uvicorn learning_hub.asgi:application --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app/
+      - ./frontend/static:/app/frontend/static
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - course-hub-network
+    environment:
+      - DEBUG=True
+      - ALLOWED_HOSTS=*
+
+  # Frontend Service (Nginx)
+  frontend:
+    build:
+      dockerfile: Dockerfile
+      context: ./frontend
+    container_name: course-hub-frontend
+    ports:
+      - 80:80
+    volumes:
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./frontend/static:/usr/share/nginx/html/static:ro
+    depends_on:
+      - backend
+    networks:
+      - course-hub-network
+
+  # Database Management UI (optional, for debugging)
+  adminer:
+    image: adminer:latest
+    container_name: course-hub-adminer
+    ports:
+      - 8080:8080
+    depends_on:
+      - database
+    networks:
+      - course-hub-network
+
+volumes:
+  postgres_data:
+
+networks:
+  course-hub-network:
+    driver: bridge
