@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: postgres-config
 data:
-  POSTGRES_DB: django_db
+  POSTGRES_DB: hub_db
   POSTGRES_USER: postgres
   POSTGRES_HOST: database
   POSTGRES_PORT: "5432"

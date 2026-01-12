@@ -9,4 +9,4 @@ data:
   POSTGRES_PORT: "5432"
   POSTGRES_DB: hub_db
   POSTGRES_USER: postgres
-  ALLOWED_HOSTS: "localhost,127.0.0.1,project-hub,backend,frontend"
+  ALLOWED_HOSTS: "*"
