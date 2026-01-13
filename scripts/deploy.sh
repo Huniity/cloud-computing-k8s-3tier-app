@@ -16,7 +16,7 @@ deploy_database() {
     echo "Deploying database..."
     kubectl apply -f database/statefulset.yaml
     kubectl apply -f database/service.yaml
-    kubectl rollout status statefulset/postgres --timeout=2m
+    kubectl -n project-hub rollout status statefulset/postgres --timeout=2m
     echo "OK"
 }
 
@@ -24,7 +24,7 @@ deploy_backend() {
     echo "Deploying backend..."
     kubectl apply -f backend/deployment.yaml
     kubectl apply -f backend/service.yaml
-    kubectl rollout status deployment/backend --timeout=2m
+    kubectl -n project-hub rollout status deployment/backend --timeout=2m
     echo "OK"
 }
 
@@ -32,22 +32,26 @@ init_database() {
     echo "Initializing database..."
     
     # Wait for backend pod to be ready
-    BACKEND_POD=$(kubectl get pods -l app=backend -o jsonpath='{.items[0].metadata.name}')
+    BACKEND_POD=$(kubectl -n project-hub get pods -l app=backend -o jsonpath='{.items[0].metadata.name}')
     echo "Using pod: $BACKEND_POD"
+    
+    # Wait for pod to be ready
+    kubectl -n project-hub wait --for=condition=Ready pod/$BACKEND_POD --timeout=2m || true
+    sleep 2
     
     # Run migrations
     echo "Running migrations..."
-    kubectl exec "$BACKEND_POD" -- poetry run python manage.py migrate
+    kubectl -n project-hub exec "$BACKEND_POD" -- poetry run python manage.py migrate
     
     # Load fixtures (order matters - groups before users)
     echo "Loading fixtures..."
-    kubectl exec "$BACKEND_POD" -- poetry run python manage.py loaddata fixtures/group.json
-    kubectl exec "$BACKEND_POD" -- poetry run python manage.py loaddata fixtures/user.json
-    kubectl exec "$BACKEND_POD" -- poetry run python manage.py loaddata fixtures/course.json
+    kubectl -n project-hub exec "$BACKEND_POD" -- poetry run python manage.py loaddata fixtures/group.json
+    kubectl -n project-hub exec "$BACKEND_POD" -- poetry run python manage.py loaddata fixtures/user.json
+    kubectl -n project-hub exec "$BACKEND_POD" -- poetry run python manage.py loaddata fixtures/course.json
     
     # Create test users
     echo "Creating test users..."
-    kubectl exec "$BACKEND_POD" -- poetry run python create_test_users.py
+    kubectl -n project-hub exec "$BACKEND_POD" -- poetry run python create_test_users.py
     
     echo "OK"
 }
@@ -56,7 +60,7 @@ deploy_frontend() {
     echo "Deploying frontend..."
     kubectl apply -f frontend/deployment.yaml
     kubectl apply -f frontend/service.yaml
-    kubectl rollout status deployment/frontend --timeout=2m
+    kubectl -n project-hub rollout status deployment/frontend --timeout=2m
     echo "OK"
 }
 
@@ -70,8 +74,8 @@ setup_port_forwarding() {
     echo "Setting up port forwarding..."
     pkill -f "kubectl port-forward" || true
     sleep 1
-    kubectl port-forward svc/frontend 8080:80 &
-    kubectl port-forward svc/backend 8000:8000 &
+    kubectl -n project-hub port-forward svc/frontend 8080:80 &
+    kubectl -n project-hub port-forward svc/backend 8000:8000 &
     kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller 8443:443 &
     sleep 2
     echo "OK"

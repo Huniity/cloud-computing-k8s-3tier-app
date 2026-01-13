@@ -12,8 +12,14 @@ check_prerequisites() {
 
 start_minikube() {
     echo "Starting minikube with single node..."
-    minikube start --nodes=1 || true
-    kubectl config use-context minikube
+    minikube start --profile=project-hub --nodes=1 || true
+    kubectl config use-context project-hub
+    echo "OK"
+}
+
+create_namespace() {
+    echo "Creating namespace..."
+    kubectl create namespace project-hub --dry-run=client -o yaml | kubectl apply -f -
     echo "OK"
 }
 
@@ -64,6 +70,8 @@ main() {
     check_prerequisites
     echo ""
     start_minikube
+    echo ""
+    create_namespace
     echo ""
     enable_ingress
     echo ""

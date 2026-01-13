@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: backend-config
+  namespace: project-hub
 data:
   DJANGO_SETTINGS_MODULE: learning_hub.settings
   DJANGO_DEBUG: "False"

@@ -52,7 +52,7 @@ clean_temp_files() {
 
 delete_minikube() {
     echo "Deleting minikube cluster..."
-    minikube delete || true
+    minikube delete --profile=project-hub || true
     echo "OK"
 }
 
