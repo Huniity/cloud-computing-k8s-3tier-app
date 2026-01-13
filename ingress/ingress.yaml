@@ -7,6 +7,7 @@ spec:
   tls:
       - hosts:
           - project-hub
+          - localhost
         secretName: project-hub-tls
   ingressClassName: nginx
   rules:

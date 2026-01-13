@@ -68,10 +68,10 @@ deploy_ingress() {
 setup_port_forwarding() {
     echo "Setting up port forwarding..."
     pkill -f "kubectl port-forward" || true
-    sleep 1
-    kubectl -n project-hub port-forward svc/frontend 8080:80 &
-    kubectl -n project-hub port-forward svc/backend 8000:8000 &
-    kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller 8443:443 &
+    sleep 3
+    kubectl -n project-hub port-forward svc/frontend 8080:80 > /dev/null 2>&1 &
+    kubectl -n project-hub port-forward svc/backend 8000:8000 > /dev/null 2>&1 &
+    kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller 8443:443 > /dev/null 2>&1 &
     sleep 2
     echo "OK"
 }

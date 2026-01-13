@@ -23,6 +23,17 @@ test_https() {
     curl -s -k -f https://localhost:8443/ >/dev/null && echo "OK" || echo "FAILED"
 }
 
+test_pod_recreation() {
+    echo ""
+    echo "Testing pod recreation..."
+    POD=$(kubectl -n project-hub get pods -o jsonpath='{.items[0].metadata.name}')
+    echo "Killing pod: $POD"
+    kubectl -n project-hub delete pod $POD --wait=false
+    echo "Waiting for recreation..."
+    sleep 3
+    kubectl -n project-hub get pods --no-headers | head -3
+}
+
 print_urls() {
     echo ""
     echo "Application URLs:"

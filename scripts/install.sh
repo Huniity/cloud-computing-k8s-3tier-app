@@ -25,10 +25,10 @@ create_namespace() {
 
 enable_ingress() {
     echo "Enabling ingress and storage..."
-    minikube addons enable ingress
-    minikube addons enable ingress-dns
-    minikube addons enable default-storageclass
-    minikube addons enable storage-provisioner
+    minikube -p project-hub addons enable ingress
+    minikube -p project-hub addons enable ingress-dns
+    minikube -p project-hub addons enable default-storageclass
+    minikube -p project-hub addons enable storage-provisioner
     echo "OK"
 }
 
@@ -39,25 +39,19 @@ build_images() {
     docker build -f frontend/Dockerfile -t frontend:latest .
     docker build -f database/Dockerfile -t database:latest .
     
-    MINIKUBE_STATUS=$(minikube status -f '{{.Host}}')
-    if [ "$MINIKUBE_STATUS" = "Running" ]; then
-        echo "Loading images into minikube..."
-        minikube cache add backend:latest
-        minikube cache add frontend:latest
-        minikube cache add database:latest
-    else
-        echo "Minikube is not running"
-        exit 1
-    fi
+    echo "Loading images into minikube..."
+    minikube -p project-hub cache add backend:latest
+    minikube -p project-hub cache add frontend:latest
+    minikube -p project-hub cache add database:latest
     echo "OK"
 }
 
 create_tls_secret() {
     echo "Creating TLS secret..."
     openssl req -x509 -newkey rsa:4096 -keyout /tmp/localhost.key -out /tmp/localhost.crt \
-        -days 365 -nodes -subj "/CN=localhost" 2>/dev/null
-    kubectl delete secret project-hub-tls --ignore-not-found=true
-    kubectl create secret tls project-hub-tls --cert=/tmp/localhost.crt --key=/tmp/localhost.key
+        -days 365 -nodes -subj "/CN=localhost" -addext "subjectAltName=DNS:localhost,DNS:project-hub" 2>/dev/null
+    kubectl -n project-hub delete secret project-hub-tls --ignore-not-found=true
+    kubectl -n project-hub create secret tls project-hub-tls --cert=/tmp/localhost.crt --key=/tmp/localhost.key
     echo "OK"
 }
 

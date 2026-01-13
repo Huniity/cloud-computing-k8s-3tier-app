@@ -31,3 +31,6 @@ setup:
 
 logs:
 	bash scripts/setup.sh
+
+kill.pods:
+	bash scripts/test.sh test_pod_recreation
