@@ -1,53 +1,201 @@
-# Project Hub - Course Management System
+
+ # Project Hub - Course Management System
 
 ![Django](https://img.shields.io/badge/Django-5.1.7-green)
 ![Python](https://img.shields.io/badge/Python-3.12.9%2B-blue)
-![Typer](https://img.shields.io/badge/Typer-0.15.2%2B-violet)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-Latest-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791)
 
-## What?
-A full-featured course HUB system with user authentication, course enrollment, and administrative tools using CLI.
+## Overview
 
-## Why?
-Why did I choose this project? Well this is a personal project facing problems that I encountered when I tried to get back to my studies. Too much time wasted searching schools through inumerous website. So I decided I could gather all the informations, and make the connection easier between Students and Mentors. Mentors and Schools can gain visibility and Student on their side find what they suit them better at a distance of a click, on a single website. This E-HUB is a gateway to the future for the tomorrow's students.
+Project Hub is a full-featured course management system built with Django, deployed on Kubernetes. It enables seamless interaction between Students and Mentors through an intuitive web interface with role-based access control, course enrollment, and administrative tools.
 
-## How?
-Using Django and Python makes a create combination for Database. I also integrated Postgres and using container for security, stability and contained informations.
+### Key Features
 
-## Features
+- **User Authentication** - Signup, login, and role-based access control
+- **Course Management** - Create, manage, and enroll in courses
+- **Student Dashboard** - View enrolled courses and track progress
+- **Mentor Dashboard** - Manage created courses and students
+- **RESTful API** - Built with Django REST Framework
+- **Admin Interface** - Django admin for administrative tasks
+- **HTTPS Support** - Self-signed certificates included
 
-### Core Functionalities
-- **User Authentication System**
-  - Signup with automatic group assignment (Student)
-  - Login/Logout functionality
-  - Role-based access control
-- **Course Management**
-  - Create/Read/Update/Delete courses
-  - Course enrollment system
-  - Student-Mentor relationship management
-  - Feature for enrollment management
-- **Dashboard Views**
-  - Students: View enrolled courses
-  - Mentors: Manage created courses
-- **Administration**
-  - Custom CLI for user management
-  - Automated group assignments
-  - Database management interface
+## Architecture
 
-### Technical Highlights
-- Custom Typer CLI integration
-- PostgreSQL database support
-- Pytest test suite with 85%+ coverage
-- Django class-based views
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      User's Browser                              │
+│                   (localhost:8443 HTTPS)                         │
+└─────────────────────┬───────────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    NGINX Ingress                                 │
+│              (TLS Termination, Routing)                          │
+└─────────────────────┬───────────────────────────────────────────┘
+                      │
+          ┌───────────┴───────────┬───────────────┐
+          ▼                       ▼               ▼
+    ┌──────────────┐      ┌──────────────┐  ┌──────────────┐
+    │   Frontend   │      │   Backend    │  │   Database   │
+    │   (Nginx)    │      │   (Django)   │  │  (PostgreSQL)│
+    │              │      │              │  │              │
+    │ HTML/CSS/JS  │      │  REST API    │  │   Tables     │
+    │ (Port 80)    │      │  (Port 8000) │  │  (Port 5432) │
+    └──────────────┘      └──────────────┘  └──────────────┘
+```
 
-## Installation and how to run🛠️
-Run this commands to installand start the app. After all is set,
-  website will be available on: localhost:8000/admin for Django Administration and localhost:8000/ for the project UI/Website.
+## Prerequisites
 
-  Commands:
+- Docker
+- kubectl
+- Minikube (for local development)
+- OpenSSL (for TLS certificate generation)
 
-- `make lazy.jorge`
+## Installation & Setup
 
-  Command that starts the project ready to use.
+### Quick Start (One Command)
+
+```bash
+make setup
+```
+
+This runs: `install` → `deploy` → `test`
+
+### Step-by-Step Setup
+
+**Step 1: Install & Prepare**
+```bash
+make install
+```
+- Starts minikube
+- Enables ingress addon
+- Builds Docker images
+- Creates TLS certificate
+
+**Step 2: Deploy Application**
+```bash
+make deploy
+```
+- Applies all Kubernetes configs
+- Deploys database, backend, frontend
+- Sets up port forwarding
+- Enables HTTPS access
+
+**Step 3: Test**
+```bash
+make test
+```
+- Verifies all pods are running
+- Tests HTTP endpoints
+- Tests API connectivity
+
+### Access the Application
+
+After setup completes, access:
+
+| Service | URL | Port |
+|---------|-----|------|
+| Frontend (HTTP) | http://localhost:8080 | 8080 |
+| Backend API | http://localhost:8000/api | 8000 |
+| Frontend (HTTPS) | https://localhost:8443 | 8443 |
+| Admin Panel | http://localhost:8000/admin | 8000 |
+
+**Note:** HTTPS uses self-signed certificate. Accept the browser warning on first access.
+
+## Available Commands
+
+```bash
+make install    # Setup minikube and build images
+make deploy     # Deploy to Kubernetes
+make test       # Run tests
+make cleanup    # Remove all resources
+make setup      # Full setup (install + deploy + test)
+make help       # Show all commands
+```
+
+Or use the interactive menu:
+```bash
+bash scripts/setup.sh
+```
+
+## Project Structure
+
+```
+├── backend/                 # Django REST API
+│   ├── learning_hub/       # Django settings
+│   ├── my_course/          # Course app
+│   ├── cli/                # CLI tools
+│   └── Dockerfile
+│
+├── frontend/               # Nginx + HTML/CSS/JS
+│   ├── html/              # HTML pages
+│   ├── css/               # Stylesheets
+│   ├── js/                # JavaScript
+│   ├── nginx.conf         # Nginx configuration
+│   └── Dockerfile
+│
+├── database/              # PostgreSQL
+│   ├── init.sql          # Initial schema
+│   ├── Dockerfile
+│   └── statefulset.yaml
+│
+├── ingress/              # Kubernetes ingress + TLS
+│   ├── ingress.yaml
+│   ├── tls.crt
+│   └── tls.key
+│
+├── scripts/              # Automation scripts
+│   ├── install.sh
+│   ├── deploy.sh
+│   ├── test.sh
+│   ├── cleanup.sh
+│   └── setup.sh
+│
+└── Makefile.local        # Make commands
+```
+
+## Cleanup
+
+Remove all resources and reset:
+
+```bash
+make cleanup
+```
+
+## Troubleshooting
+
+### Port Already in Use
+```bash
+pkill -f "kubectl port-forward"
+```
+
+### View Logs
+```bash
+bash scripts/setup.sh  # Select option 6
+# Or directly:
+kubectl logs -l app=frontend
+kubectl logs -l app=backend
+kubectl logs -l app=database
+```
+
+### Restart Services
+```bash
+kubectl rollout restart deployment/frontend
+kubectl rollout restart deployment/backend
+```
+
+## Technologies Used
+
+- **Frontend:** HTML5, CSS3, JavaScript, Nginx
+- **Backend:** Django 5.1, Django REST Framework, Python 3.12
+- **Database:** PostgreSQL 15
+- **Infrastructure:** Kubernetes, Docker, Minikube
+- **Security:** TLS/HTTPS, Self-signed certificates
+
+## License
+
+This project is licensed under the MIT License.
   This commands creates the .env file so you don't have to. Builds the container, migrates data, injects the data from .Json in the Postgres DB, opens the browser on the index of the app and finally re-opens logs.
   You can at anytime, log in or logout and create new user on the website. New comers always get Student role, to grants Mentor access you can proceed to Django Administration or using the CLI commands on the CLI section of this README.md.
   Following links have profiles already created so you can see how this SAaS works, from Student side to Mentor side.

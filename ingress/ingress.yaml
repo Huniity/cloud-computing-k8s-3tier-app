@@ -3,9 +3,37 @@ kind: Ingress
 metadata:
   name: project-hub-ingress
 spec:
+  tls:
+      - hosts:
+          - project-hub
+        secretName: project-hub-tls
   ingressClassName: nginx
   rules:
   - host: project-hub
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: backend
+            port:
+              number: 8000
+      - path: /admin
+        pathType: Prefix
+        backend:
+          service:
+            name: backend
+            port:
+              number: 8000
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
+  - host: localhost
     http:
       paths:
       - path: /api
