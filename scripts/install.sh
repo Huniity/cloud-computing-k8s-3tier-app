@@ -35,15 +35,12 @@ enable_ingress() {
 build_images() {
     echo "Building Docker images..."
     
-    # Build images
     docker build -f backend/Dockerfile -t backend:latest .
     docker build -f frontend/Dockerfile -t frontend:latest .
     docker build -f database/Dockerfile -t database:latest .
     
-    # Get minikube's Docker socket if using docker driver
     MINIKUBE_STATUS=$(minikube status -f '{{.Host}}')
     if [ "$MINIKUBE_STATUS" = "Running" ]; then
-        # Load images into minikube cache
         echo "Loading images into minikube..."
         minikube cache add backend:latest
         minikube cache add frontend:latest

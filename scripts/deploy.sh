@@ -31,25 +31,20 @@ deploy_backend() {
 init_database() {
     echo "Initializing database..."
     
-    # Wait for backend pod to be ready
     BACKEND_POD=$(kubectl -n project-hub get pods -l app=backend -o jsonpath='{.items[0].metadata.name}')
     echo "Using pod: $BACKEND_POD"
     
-    # Wait for pod to be ready
     kubectl -n project-hub wait --for=condition=Ready pod/$BACKEND_POD --timeout=2m || true
     sleep 2
     
-    # Run migrations
     echo "Running migrations..."
     kubectl -n project-hub exec "$BACKEND_POD" -- poetry run python manage.py migrate
     
-    # Load fixtures (order matters - groups before users)
     echo "Loading fixtures..."
     kubectl -n project-hub exec "$BACKEND_POD" -- poetry run python manage.py loaddata fixtures/group.json
     kubectl -n project-hub exec "$BACKEND_POD" -- poetry run python manage.py loaddata fixtures/user.json
     kubectl -n project-hub exec "$BACKEND_POD" -- poetry run python manage.py loaddata fixtures/course.json
     
-    # Create test users
     echo "Creating test users..."
     kubectl -n project-hub exec "$BACKEND_POD" -- poetry run python create_test_users.py
     

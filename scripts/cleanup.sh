@@ -10,7 +10,6 @@ stop_port_forwarding() {
 delete_resources() {
     echo "Deleting resources..."
     
-    # Check if kubectl can connect to cluster
     if ! kubectl cluster-info &>/dev/null; then
         echo "Warning: Kubernetes cluster not accessible, skipping resource deletion"
         return 0
