@@ -39,10 +39,10 @@ init_database() {
     echo "Running migrations..."
     kubectl exec "$BACKEND_POD" -- poetry run python manage.py migrate
     
-    # Load fixtures
+    # Load fixtures (order matters - groups before users)
     echo "Loading fixtures..."
-    kubectl exec "$BACKEND_POD" -- poetry run python manage.py loaddata fixtures/user.json
     kubectl exec "$BACKEND_POD" -- poetry run python manage.py loaddata fixtures/group.json
+    kubectl exec "$BACKEND_POD" -- poetry run python manage.py loaddata fixtures/user.json
     kubectl exec "$BACKEND_POD" -- poetry run python manage.py loaddata fixtures/course.json
     
     # Create test users
