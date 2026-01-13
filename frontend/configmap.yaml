@@ -21,7 +21,7 @@ data:
       }
 
       location /api/ {
-        set $backend_upstream http://backend.default.svc.cluster.local:8000;
+        set $backend_upstream http://backend.project-hub.svc.cluster.local:8000;
         proxy_pass $backend_upstream;
 
         proxy_set_header Host $host;
@@ -40,7 +40,7 @@ data:
       }
 
       location /admin/ {
-        set $backend_upstream http://backend.default.svc.cluster.local:8000;
+        set $backend_upstream http://backend.project-hub.svc.cluster.local:8000;
         proxy_pass $backend_upstream;
 
         proxy_set_header Host $host;
